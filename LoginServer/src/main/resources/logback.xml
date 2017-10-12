@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+
+	<property resource="configs/server.properties" />
+	<!-- <property name="LOGS_PATH" value="${log.path}" />  -->
+
+	<appender name="login_server_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${logpath}/game_server_log.%d{yyyy-MM-dd}.log</FileNamePattern>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%date{HH:mm:ss.SSS} %msg%n</pattern>
+		</layout>
+	</appender>
+	
+	<appender name="db_common_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<FileNamePattern>${logpath}/db_common_log.%d{yyyy-MM-dd}.log</FileNamePattern>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<pattern>%date{HH:mm:ss.SSS} | %-5level | %logger - %msg%n</pattern>
+		</layout>
+	</appender>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%date{HH:mm:ss.SSS} | %-5level | %logger - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- Application Loggers -->
+	<logger name="com.framework.login" additivity="false">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="login_server_log" />
+	</logger>
+	
+	<logger name="com.db.common" additivity="false">
+		<level value="INFO" />
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="db_common_log" />
+	</logger>
+</configuration>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd">
+
+	<!-- Datasources / Transaction manager binding -->
+	<!-- CommonDB Write -->
+	<bean id="dataSourceCommonDBWrite"
+		class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
+		<property name="targetDataSource">
+			<bean id="datasource" class="org.apache.tomcat.jdbc.pool.DataSource">
+				<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+				<property name="url" value="${jdbc.common.write.url}" />
+				<property name="username" value="${jdbc.commondb.username}" />
+				<property name="password" value="${jdbc.commondb.password}" />
+				<property name="validationQuery" value="select 1" />
+				<property name="testOnBorrow" value="false" />
+				<property name="testWhileIdle" value="true" />
+				<property name="timeBetweenEvictionRunsMillis" value="3600000" />
+				<!-- property name="poolPreparedStatements" value="true" /-->
+			</bean>
+		</property>
+	</bean>
+	<bean id="commonDBWriteSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceCommonDBWrite" />
+		<property name="configLocation" value="classpath:/database/mybatis-common-config.xml" />
+		<property name="mapperLocations" value="classpath:/querys/config/*.xml" />
+	</bean>
+	<bean id="sqlCommonWriteSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="commonDBWriteSessionFactory" />
+	</bean>
+	<bean id="txManagerCommonDBWrite"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSourceCommonDBWrite" />
+	</bean>
+</beans>

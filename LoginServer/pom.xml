@@ -1,0 +1,160 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>LoginServer</groupId>
+  <artifactId>LoginServer</artifactId>
+  <version>${environment}</version>
+  <name>LoginServer</name>
+  <packaging>jar</packaging>
+  
+  <properties>
+	<java-version>1.8</java-version>
+	<maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	<timestamp>${maven.build.timestamp}</timestamp>
+	<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+  </properties>
+  
+  <parent>
+	<groupId>GameFramework</groupId>
+	<artifactId>GameFramework</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<relativePath>../GameFramework</relativePath>
+  </parent>
+  
+  <profiles>
+	<profile>
+	    <id>local</id>
+	    <activation>
+	        <activeByDefault>true</activeByDefault>
+	    </activation>			
+	    <properties>
+	        <environment>local</environment>
+	    </properties>
+	</profile>
+	<profile>
+	    <id>qa</id>
+	    <properties>
+	        <environment>qa</environment>
+	    </properties>
+	</profile>
+	<profile>
+	    <id>dev</id>
+	    <properties>
+	        <environment>dev</environment>
+	    </properties>
+	</profile>
+	<profile>
+	    <id>alpha</id>
+	    <properties>
+	        <environment>alpha</environment>
+	    </properties>
+	</profile>
+	<profile>
+	    <id>beta</id>
+	    <properties>
+	        <environment>beta</environment>
+	    </properties>
+	</profile>
+	<profile>
+	    <id>real</id>
+	    <properties>
+	        <environment>real</environment>
+	    </properties>
+	</profile>
+  </profiles>
+  
+   <dependencies>
+	<dependency>
+	    <groupId>io.netty</groupId> 
+	    <artifactId>netty-all</artifactId>
+	    <version>4.1.7.Final</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>GameCore</groupId>
+		<artifactId>GameCore</artifactId>
+		<version>0.0.1</version>
+		<scope>system</scope>
+		<systemPath>${project.basedir}/libs/GameCore-0.0.1.jar</systemPath>
+	</dependency>
+	
+	<dependency>
+		<groupId>GameCommon</groupId>
+		<artifactId>GameCommon</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>DBCommon</groupId>
+		<artifactId>DBCommon</artifactId>
+		<version>${environment}</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>ch.qos.logback</groupId>
+		<artifactId>logback-classic</artifactId>
+		<version>1.0.9</version>
+	</dependency>
+
+	<dependency>
+		<groupId>ch.qos.logback</groupId>
+		<artifactId>logback-core</artifactId>
+		<version>1.0.9</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.json</groupId>
+		<artifactId>json</artifactId>
+		<version>20140107</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>com.alibaba</groupId>
+	    <artifactId>fastjson</artifactId>
+	    <version>1.2.28</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>javax.servlet</groupId>
+		<artifactId>javax.servlet-api</artifactId>
+		<version>3.0.1</version>
+		<scope>provided</scope>
+	</dependency>
+  </dependencies>
+  
+  <build>
+  	<resources>
+		<resource>
+			<directory>src/main/resources</directory>
+			<filtering>true</filtering>
+		</resource>
+		<resource>
+			<directory>src/main/resources-${environment}</directory>
+			<filtering>true</filtering>
+		</resource>
+	</resources>
+	
+    <pluginManagement>
+	<plugins>
+	<plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-jar-plugin</artifactId>
+	    <configuration>
+	        <source>1.8</source>
+	        <target>1.8</target>
+	        <archive>
+	            <manifest>
+	                <mainClass>com.framework.login.LoginServer</mainClass>
+	                <addClasspath>true</addClasspath>
+	            <classpathPrefix>lib/</classpathPrefix>
+	            </manifest>
+	        </archive>
+	        <classesDirectory>
+	        </classesDirectory>
+	    </configuration>
+	</plugin>
+	</plugins>    
+	</pluginManagement>
+  </build>
+</project>

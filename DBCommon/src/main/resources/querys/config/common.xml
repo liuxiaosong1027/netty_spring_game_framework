@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.db.common.mapper.user.DistUserMapper">
+	<select id="getDistShardDBInfo"	resultType="com.db.common.mapper.user.DistShardHostBean">
+		SELECT 
+			db_id, host, user_count 
+		FROM 
+			shard_db_info
+	</select>
+	
+	<select id="getDistUser" parameterType="long" resultType="com.db.common.mapper.user.DistUserBean">
+		SELECT user_no, db_id, user_mid, platform_code, version, os_type, reg_date FROM 
+			shard_userdb_info 
+		WHERE 
+			user_no = #{userNo}
+	</select>
+	
+	<select id="getDistUserByMid" resultType="com.db.common.mapper.user.DistUserBean">
+		SELECT user_no, db_id, user_mid, platform_code, version, os_type, reg_date FROM 
+			shard_userdb_info 
+		WHERE 
+			user_mid = #{0} and platform_code = #{1}
+	</select>
+	
+	<insert id="addDistUser" parameterType="com.db.common.mapper.user.DistUserBean">
+		<selectKey keyProperty="user_no" resultType="long" order="AFTER">
+			select LAST_INSERT_ID() AS user_no
+		</selectKey>
+		INSERT INTO shard_userdb_info
+			(user_no, db_id, user_mid, platform_code, version, os_type, reg_date)
+		VALUES
+			(#{user_no}, #{db_id}, #{user_mid}, #{platform_code}, #{version}, #{os_type}, #{reg_date});
+	</insert>
+	
+	<update id="updateDistUserBean" >
+		UPDATE shard_userdb_info
+		SET 
+			version=#{version},
+			os_type=#{os_type}
+	  	WHERE
+	  		user_no = #{user_no}
+	</update>
+</mapper>

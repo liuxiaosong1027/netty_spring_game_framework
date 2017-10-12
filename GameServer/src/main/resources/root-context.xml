@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c='http://www.springframework.org/schema/c'
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/aop 
+    http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	
+	<context:spring-configured />
+	
+	<task:scheduler id="serverScheduler" pool-size="30" />
+	<task:annotation-driven scheduler="serverScheduler" />
+	<context:annotation-config />
+	<context:property-placeholder location="classpath:database/db.properties, classpath:configs/gameServer.properties" />
+		
+	<import resource="classpath:database/commondb-write-context.xml" />
+	<import resource="classpath:database/commondb-read-context.xml" />
+	<!-- <import resource="classpath:database/gamedb-shard1-context.xml" /> -->
+	<!-- <import resource="classpath:database/gamelog-shard1-context.xml" /> -->
+
+	<bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool">
+        <constructor-arg index="0" ref="jedisPoolConfig"/>
+        <constructor-arg index="1">
+            <list>
+                 <bean name="master" class="redis.clients.jedis.JedisShardInfo">
+                    <constructor-arg index="0" value="${redis.master.host}" />
+                    <constructor-arg index="1" value="${redis.master.port}" type="int" />
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">  
+        <property name="maxIdle" value="8" />
+        <property name="maxTotal" value="200" />
+        <property name="maxWaitMillis" value="10000" />
+        <property name="testOnBorrow" value="true" />
+    </bean> 
+    
+	<!-- SessionFactorMap setting -->
+	<bean id="sessionManager" class="com.db.common.session.SqlSessionManager">
+		<property name="commonDBSessionMap">
+			<map>
+				<entry key="CommonRead" value-ref="sqlCommonReadSession" />
+				<entry key="CommonWrite" value-ref="sqlCommonWriteSession" />
+			</map>
+		</property>
+		<!-- <property name="GameDBSessionList">
+			<list>
+				<ref bean="sqlGameDBShard1Session" />
+			</list>
+		</property>
+		<property name="gameLogDBSessionList">
+			<list>
+				<ref bean="sqlGameLogShard1Session" />
+			</list>
+		</property> -->
+	</bean>
+
+	<!-- Transaction manager annotation driven -->
+	<tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager" mode="aspectj"/>
+
+	<context:component-scan base-package="com.db.common, com.framework.game">
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	<context:annotation-config></context:annotation-config>
+</beans>
